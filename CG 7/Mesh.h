@@ -9,11 +9,18 @@ public:
 	void updatebuffer();
 	void draw();
 	void meshdata(float x, float y, float z);
+	void move();
+	void release();
 
 	bool draw_point = false;
 	bool draw_line = false;
 	bool draw_triangle = false;
 	bool draw_rect = false;
+
+	bool draw_right = false;
+	bool draw_left = false;
+	bool draw_up = false;
+	bool draw_down = false;
 
 private:
 	GLuint m_VAO[4];
@@ -33,12 +40,12 @@ private:
 	int cnttriangle;
 	int cntrect;
 
+	GLfloat m_fSpeed;
+
 	// vector는 zeromemory로 초기화하는거 아닌듯
 	std::vector<Vertices> m_vertices_vtx;
 	std::vector<Vertices> m_vertices_line;
 	std::vector<Vertices> m_vertices_triangle;
 	std::vector<Vertices> m_vertices_rect;
-
-
 };
 

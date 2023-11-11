@@ -2,7 +2,7 @@
 #include "Mesh.h"
 
 Mesh::Mesh() 
-	: cntVertices(0), cntlines(0), cnttriangle(0), cntrect(0),
+	: cntVertices(0), cntlines(0), cnttriangle(0), cntrect(0), m_fSpeed(0.01f),
 	m_VAO_vtx(0), m_VAO_line(0), m_VAO_triangle(0), m_VAO_rect(0)
 {
 	ZeroMemory(&m_VAO, sizeof(GLuint));
@@ -17,6 +17,7 @@ Mesh::~Mesh()
 	//for (int i = 0; i < m_vertices->size(); ++i) {
 	//	m_vertices[i].clear();
 	//}
+	
 }
 
 void Mesh::initbuffer()
@@ -165,4 +166,37 @@ void Mesh::meshdata(float x, float y, float z)
 		}
 		m_vertices_rect.push_back(*trect);
 	}
+}
+
+void Mesh::move()
+{
+	if (draw_right) 
+		for (auto iter = m_vertices_vtx.begin(); iter != m_vertices_vtx.end(); ++iter)
+			iter->x += m_fSpeed;
+	if (draw_left)
+		for (auto iter = m_vertices_vtx.begin(); iter != m_vertices_vtx.end(); ++iter)
+			iter->x -= m_fSpeed;
+	if (draw_up)
+		for (auto iter = m_vertices_vtx.begin(); iter != m_vertices_vtx.end(); ++iter)
+			iter->y += m_fSpeed;
+	if (draw_down)
+		for (auto iter = m_vertices_vtx.begin(); iter != m_vertices_vtx.end(); ++iter)
+			iter->y -= m_fSpeed;
+
+	draw_right = false;
+	draw_left = false;
+	draw_up = false;
+	draw_down = false;
+
+	glutPostRedisplay();
+}
+
+void Mesh::release()
+{
+	m_vertices_vtx.clear();
+	cntVertices = 0;
+	//std::vector<Vertices>().swap(m_vertices_vtx);
+
+	glutPostRedisplay();
+
 }

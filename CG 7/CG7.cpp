@@ -181,14 +181,23 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		}
 		break;
 	case 'w':
+		mesh.draw_up = true;
+		mesh.move();
 		break;
 	case 'a':
+		mesh.draw_left = true;
+		mesh.move();
 		break;
 	case 's':
+		mesh.draw_down = true;
+		mesh.move();
 		break;
 	case 'd':
+		mesh.draw_right = true;
+		mesh.move();
 		break;
 	case 'c':	// 모든 도형을 삭제
+		mesh.release();
 		break;
 	case 27:
 		exit(0);
