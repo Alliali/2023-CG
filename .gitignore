@@ -1,3 +1,4 @@
+*.bin
 *.db-shm
 *.db-wal
 *.opendb
