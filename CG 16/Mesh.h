@@ -7,6 +7,7 @@ public:
 
 	void initbuffer();
 	void updatebuffer();
+	void glu_draw();
 	void draw();
 	void meshdata(float x, float y, float z);
 	void move();
@@ -47,5 +48,8 @@ private:
 	std::vector<Vertices> m_vertices_line;
 	std::vector<Vertices> m_vertices_triangle;
 	std::vector<Vertices> m_vertices_rect;
+
+	GLUquadricObj* qobj[2];
+
 };
 

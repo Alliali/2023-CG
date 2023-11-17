@@ -10,6 +10,7 @@ Mesh::Mesh()
 	ZeroMemory(&m_VBO_line, sizeof(GLuint));
 	ZeroMemory(&m_VBO_triangle, sizeof(GLuint));
 	ZeroMemory(&m_VBO_rect, sizeof(GLuint));
+	ZeroMemory(&qobj, sizeof(GLUquadricObj*));
 }
 
 Mesh::~Mesh()
@@ -93,6 +94,23 @@ void Mesh::updatebuffer()
 	}
 }
 
+void Mesh::glu_draw()
+{
+	// 내 기준 gldraw랑 비슷 만들어놓으면 알아서 적용
+	qobj[0] = gluNewQuadric();
+	gluQuadricDrawStyle(qobj[0], GLU_LINE);
+	gluQuadricNormals(qobj[0], GLU_SMOOTH);
+	gluQuadricOrientation(qobj[0], GLU_OUTSIDE);
+	gluCylinder(qobj[0], 0.5, 0.0, 0.5, 20, 8);
+
+	qobj[1] = gluNewQuadric();
+	gluQuadricDrawStyle(qobj[1], GLU_LINE);
+	gluQuadricNormals(qobj[1], GLU_SMOOTH);
+	gluQuadricOrientation(qobj[1], GLU_OUTSIDE);
+	gluCylinder(qobj[1], 0.5, 0.5, 0.5, 4, 4);
+
+}
+
 void Mesh::draw()
 {
 	glPointSize(10);
@@ -117,18 +135,38 @@ void Mesh::meshdata(float x, float y, float z)
 	std::default_random_engine dre;
 	std::uniform_real_distribution<float> uid{ 0, 1 };
 
-	if (draw_point) {
-		Vertices temp{};
-		temp.x = x;
-		temp.y = y;
-		temp.z = z;
-		temp.r = uid(dre);
-		temp.g = uid(dre);
-		temp.b = uid(dre);
-		++cntVertices;
-		m_vertices_vtx.push_back(temp);
-	}
-	else if (draw_line) {
+	Vertices tempx1{}, tempx2{};
+	Vertices tempy1{}, tempy2{};
+	Vertices tempz1{}, tempz2{};
+
+	tempx1.x = -1,	tempx2.x = 1;
+	tempx1.y = 0,	tempx2.y = 0;
+	tempx1.z = 0,	tempx2.z = 0;
+	tempx1.r = 0,	tempx2.r = 0;
+	tempx1.g = 0,	tempx2.g = 0;
+	tempx1.b = 0,	tempx2.b = 0;
+	m_vertices_line.push_back(tempx1);
+	m_vertices_line.push_back(tempx2);
+
+	tempy1.x = 0,	tempy2.x = 0;
+	tempy1.y = -1,	tempy2.y = 1;
+	tempy1.z = 0,	tempy2.z = 0;
+	tempy1.r = 0,	tempy2.r = 0;
+	tempy1.g = 0,	tempy2.g = 0;
+	tempy1.b = 0,	tempy2.b = 0;
+	m_vertices_line.push_back(tempy1);
+	m_vertices_line.push_back(tempy2);
+
+	tempz1.x = 0,	tempz2.x = 0;
+	tempz1.y = 0,	tempz2.y = 0;
+	tempz1.z = -1,	tempz2.z = 1;
+	tempz1.r = 0,	tempz2.r = 0;
+	tempz1.g = 0,	tempz2.g = 0;
+	tempz1.b = 0,	tempz2.b = 0;
+	m_vertices_line.push_back(tempz1);
+	m_vertices_line.push_back(tempz2);
+
+	if (draw_line) {
 		Vertices tline1{};
 		Vertices tline2{};
 

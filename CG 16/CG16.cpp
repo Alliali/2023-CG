@@ -31,10 +31,12 @@ int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 {
 	//--- 윈도우 생성하기
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(WINSIZEX, WINSIZEY);
 	glutCreateWindow("Example1");
+
+	glEnable(GL_DEPTH_TEST);
 
 	//--- GLEW 초기화하기
 	glewExperimental = GL_TRUE;
@@ -135,9 +137,30 @@ GLvoid drawScene()
 
 	glUseProgram(shaderProgramID);
 
+	//glm::mat4 model = glm::mat4(1.0f);
+	//model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f));
+	//model = glm::scale(model, glm::vec3(0.5f, 2.0f, 1.0f));
+
+	glm::mat4 Tx = glm::mat4(1.0f);
+	glm::mat4 Rz = glm::mat4(1.0f);
+	glm::mat4 TR = glm::mat4(1.0f);
+
+	Tx = glm::translate(Tx, glm::vec3(0.0, 0.0, 0.0));
+	Rz = glm::rotate(Rz, glm::radians(70.0f), glm::vec3(0.0, 1.0, 0.0));
+
+	TR = Rz;
+
+	unsigned int modelLocation = glGetUniformLocation(shaderProgramID, "modelTransform");
+
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(TR));
+
+
+
 	mesh.updatebuffer();
 
 	mesh.draw();
+
+	mesh.glu_draw();
 
 	glutSwapBuffers(); // 화면에 출력하기
 }
