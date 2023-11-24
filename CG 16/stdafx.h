@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <random>
+#include <string>
 
 #include "FileRead.h"
 

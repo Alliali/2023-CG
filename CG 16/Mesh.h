@@ -1,4 +1,7 @@
 #pragma once
+
+class shaders;
+
 class Mesh
 {
 public:
@@ -22,6 +25,12 @@ public:
 	bool draw_left = false;
 	bool draw_up = false;
 	bool draw_down = false;
+
+public:
+	shaders* m_pshader;
+
+private:
+	void ReadObj(FILE* path);
 
 private:
 	GLuint m_VAO[4];

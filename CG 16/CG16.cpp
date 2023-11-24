@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "Mesh.h"
+#include "shaders.h"
 
-void make_vertexShaders();
-void make_fragmentShaders();
+//void make_vertexShaders();
+//void make_fragmentShaders();
 
-GLuint make_shaderProgram();
+//GLuint make_shaderProgram();
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
 GLvoid Keyboard(unsigned char key, int x, int y);
@@ -25,6 +26,8 @@ int draw_vertex(0);
 int numVertices(0);
 
 Mesh mesh;
+shaders* m_pShader;
+
 
 //--- 메인 함수
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
@@ -44,7 +47,8 @@ int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 
 	//--- 세이더 읽어와서 세이더 프로그램 만들기
 
-	make_shaderProgram();
+	//make_shaderProgram();
+	//m_pShader = new shaders("vertex.glsl", "fragment.glsl");
 	
 	mesh.initbuffer();
 	//--- 세이더 프로그램 만들기
@@ -57,75 +61,75 @@ int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 	glutMainLoop();
 }
 
-void make_vertexShaders()
-{
-	//--- 버텍스 세이더 읽어 저장하고 컴파일 하기
-	//--- filetobuf: 사용자정의 함수로 텍스트를 읽어서 문자열에 저장하는 함수
-
-	vertexSource = filetobuf("vertex.glsl");
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);	// 셰이더 객체 만들기
-	glShaderSource(vertexShader, 1, (const GLchar**)&vertexSource, 0);	 //셰이더 객체에 셰이더 코드 붙이기
-	glCompileShader(vertexShader);	//셰이더 객체 컴파일하기
-
-	GLint result;
-	GLchar errorLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &result);
-	if (!result)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, errorLog);
-		std::cerr << "ERROR: vertex shader 컴파일 실패\n" << errorLog << std::endl;
-		return;
-	}
-}
-
-void make_fragmentShaders()
-{
-	//--- 프래그먼트 세이더 읽어 저장하고 컴파일하기
-	fragmentSource = filetobuf("fragment.glsl"); // 프래그세이더 읽어오기
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, (const GLchar**)&fragmentSource, 0);
-	glCompileShader(fragmentShader);
-
-	GLint result;
-	GLchar errorLog[512];
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &result);
-	if (!result)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, errorLog);
-		std::cerr << "ERROR: frag_shader 컴파일 실패\n" << errorLog << std::endl;
-		return;
-	}
-}
-
-GLuint make_shaderProgram()
-{
-	make_vertexShaders(); //--- 버텍스 세이더 만들기
-	make_fragmentShaders(); //--- 프래그먼트 세이더 만들기
-
-	shaderProgramID = glCreateProgram(); //--- 세이더 프로그램 만들기
-
-	glAttachShader(shaderProgramID, vertexShader); //--- 세이더 프로그램에 버텍스 세이더 붙이기
-	glAttachShader(shaderProgramID, fragmentShader); //--- 세이더 프로그램에 프래그먼트 세이더 붙이기
-
-	glLinkProgram(shaderProgramID); //--- 세이더 프로그램 링크하기
-
-	glDeleteShader(vertexShader); //--- 세이더 객체를 세이더 프로그램에 링크했음으로, 세이더 객체 자체는 삭제 가능
-	glDeleteShader(fragmentShader);
-
-	GLint result;
-	GLchar errorLog[512];
-	glGetProgramiv(shaderProgramID, GL_LINK_STATUS, &result); // ---세이더가 잘 연결되었는지 체크하기
-	if (!result) {
-		glGetProgramInfoLog(shaderProgramID, 512, NULL, errorLog);
-		std::cerr << "ERROR: shader program 연결 실패\n" << errorLog << std::endl;
-		return false;
-	}
-
-	glUseProgram(shaderProgramID); //--- 만들어진 세이더 프로그램 사용하기
-	//--- 여러 개의 세이더프로그램 만들 수 있고, 그 중 한개의 프로그램을 사용하려면
-	//--- glUseProgram 함수를 호출하여 사용 할 특정 프로그램을 지정한다.
-	//--- 사용하기 직전에 호출할 수 있다.
-}
+//void make_vertexShaders()
+//{
+//	//--- 버텍스 세이더 읽어 저장하고 컴파일 하기
+//	//--- filetobuf: 사용자정의 함수로 텍스트를 읽어서 문자열에 저장하는 함수
+//
+//	vertexSource = filetobuf("vertex.glsl");
+//	vertexShader = glCreateShader(GL_VERTEX_SHADER);	// 셰이더 객체 만들기
+//	glShaderSource(vertexShader, 1, (const GLchar**)&vertexSource, 0);	 //셰이더 객체에 셰이더 코드 붙이기
+//	glCompileShader(vertexShader);	//셰이더 객체 컴파일하기
+//
+//	GLint result;
+//	GLchar errorLog[512];
+//	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &result);
+//	if (!result)
+//	{
+//		glGetShaderInfoLog(vertexShader, 512, NULL, errorLog);
+//		std::cerr << "ERROR: vertex shader 컴파일 실패\n" << errorLog << std::endl;
+//		return;
+//	}
+//}
+//
+//void make_fragmentShaders()
+//{
+//	//--- 프래그먼트 세이더 읽어 저장하고 컴파일하기
+//	fragmentSource = filetobuf("fragment.glsl"); // 프래그세이더 읽어오기
+//	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+//	glShaderSource(fragmentShader, 1, (const GLchar**)&fragmentSource, 0);
+//	glCompileShader(fragmentShader);
+//
+//	GLint result;
+//	GLchar errorLog[512];
+//	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &result);
+//	if (!result)
+//	{
+//		glGetShaderInfoLog(fragmentShader, 512, NULL, errorLog);
+//		std::cerr << "ERROR: frag_shader 컴파일 실패\n" << errorLog << std::endl;
+//		return;
+//	}
+//}
+//
+//GLuint make_shaderProgram()
+//{
+//	make_vertexShaders(); //--- 버텍스 세이더 만들기
+//	make_fragmentShaders(); //--- 프래그먼트 세이더 만들기
+//
+//	shaderProgramID = glCreateProgram(); //--- 세이더 프로그램 만들기
+//
+//	glAttachShader(shaderProgramID, vertexShader); //--- 세이더 프로그램에 버텍스 세이더 붙이기
+//	glAttachShader(shaderProgramID, fragmentShader); //--- 세이더 프로그램에 프래그먼트 세이더 붙이기
+//
+//	glLinkProgram(shaderProgramID); //--- 세이더 프로그램 링크하기
+//
+//	glDeleteShader(vertexShader); //--- 세이더 객체를 세이더 프로그램에 링크했음으로, 세이더 객체 자체는 삭제 가능
+//	glDeleteShader(fragmentShader);
+//
+//	GLint result;
+//	GLchar errorLog[512];
+//	glGetProgramiv(shaderProgramID, GL_LINK_STATUS, &result); // ---세이더가 잘 연결되었는지 체크하기
+//	if (!result) {
+//		glGetProgramInfoLog(shaderProgramID, 512, NULL, errorLog);
+//		std::cerr << "ERROR: shader program 연결 실패\n" << errorLog << std::endl;
+//		return false;
+//	}
+//
+//	glUseProgram(shaderProgramID); //--- 만들어진 세이더 프로그램 사용하기
+//	//--- 여러 개의 세이더프로그램 만들 수 있고, 그 중 한개의 프로그램을 사용하려면
+//	//--- glUseProgram 함수를 호출하여 사용 할 특정 프로그램을 지정한다.
+//	//--- 사용하기 직전에 호출할 수 있다.
+//}
 
 GLvoid drawScene()
 {
@@ -135,32 +139,20 @@ GLvoid drawScene()
 	glClearColor(rColor, gColor, bColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glUseProgram(shaderProgramID);
+	//glUseProgram(shaderProgramID);
 
 	//glm::mat4 model = glm::mat4(1.0f);
 	//model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f));
 	//model = glm::scale(model, glm::vec3(0.5f, 2.0f, 1.0f));
 
-	glm::mat4 Tx = glm::mat4(1.0f);
-	glm::mat4 Rz = glm::mat4(1.0f);
-	glm::mat4 TR = glm::mat4(1.0f);
+	//m_pShader->shaderuse();
 
-	Tx = glm::translate(Tx, glm::vec3(0.0, 0.0, 0.0));
-	Rz = glm::rotate(Rz, glm::radians(70.0f), glm::vec3(0.0, 1.0, 0.0));
-
-	TR = Rz;
-
-	unsigned int modelLocation = glGetUniformLocation(shaderProgramID, "modelTransform");
-
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(TR));
-
-
+	mesh.glu_draw();
 
 	mesh.updatebuffer();
 
 	mesh.draw();
 
-	mesh.glu_draw();
 
 	glutSwapBuffers(); // 화면에 출력하기
 }

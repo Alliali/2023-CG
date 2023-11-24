@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Mesh.h"
+#include "shaders.h"
 
 Mesh::Mesh() 
 	: cntVertices(0), cntlines(0), cnttriangle(0), cntrect(0), m_fSpeed(0.01f),
@@ -97,18 +98,34 @@ void Mesh::updatebuffer()
 void Mesh::glu_draw()
 {
 	// 내 기준 gldraw랑 비슷 만들어놓으면 알아서 적용
-	qobj[0] = gluNewQuadric();
-	gluQuadricDrawStyle(qobj[0], GLU_LINE);
-	gluQuadricNormals(qobj[0], GLU_SMOOTH);
-	gluQuadricOrientation(qobj[0], GLU_OUTSIDE);
-	gluCylinder(qobj[0], 0.5, 0.0, 0.5, 20, 8);
+	//qobj[0] = gluNewQuadric();
+	//gluQuadricDrawStyle(qobj[0], GLU_LINE);
+	//gluQuadricNormals(qobj[0], GLU_SMOOTH);
+	//gluQuadricOrientation(qobj[0], GLU_OUTSIDE);
+	//gluCylinder(qobj[0], 0.5, 0.0, 0.5, 20, 8);
 
 	qobj[1] = gluNewQuadric();
 	gluQuadricDrawStyle(qobj[1], GLU_LINE);
 	gluQuadricNormals(qobj[1], GLU_SMOOTH);
 	gluQuadricOrientation(qobj[1], GLU_OUTSIDE);
-	gluCylinder(qobj[1], 0.5, 0.5, 0.5, 4, 4);
+	gluCylinder(qobj[1], 0.5, 0.5, 0.5, 4, 1);
 
+	m_pshader = new shaders("vertex.glsl", "fragment.glsl");	
+	// // 이걸 사용하려면 shader에서 파일 읽어오는 거 조금 조정
+	// 이걸 하고 있는 이유 obj 파일을 읽고 그 버텍스를 그리고 움직이고 싶은데 그 유니폼 값을 가져오려면 쉐이더id가 필요 그래서 메쉬클래스에선 현재 불가능 그래서 쉐이더 만드는 걸 쉐이더클래스 따로 만들어서 여기서도 받아오게 하려고 만드는중 결론은 여기서 shaders->shaderuse()가 되게끔 하고 싶음
+	m_pshader->shaderuse();
+	
+
+
+	glm::mat4 Tx = glm::mat4(1.0f);
+	glm::mat4 Rz = glm::mat4(1.0f);
+	glm::mat4 TR = glm::mat4(1.0f);
+
+	//Tx = glm::translate(Tx, glm::vec3(0.0, 0.0, 0.0));
+	Rz = glm::rotate(Rz, glm::radians(50.0f), glm::vec3(1.0, 1.0, 1.0));
+
+	TR = Rz;
+	m_pshader->setUniform_matrix4fv("modelTransform", TR);
 }
 
 void Mesh::draw()
@@ -207,7 +224,7 @@ void Mesh::meshdata(float x, float y, float z)
 		ttri3.y = y - 0.15f;	ttri3.g = uid(dre);
 		ttri3.z = z;			ttri3.b = uid(dre);
 		
-		cnttriangle += cnttriangle + 3;
+		cnttriangle = cnttriangle + 3;
 
 		m_vertices_triangle.push_back(ttri1);
 		m_vertices_triangle.push_back(ttri2);
@@ -338,4 +355,71 @@ void Mesh::release()
 
 	glutPostRedisplay();
 
+}
+
+void Mesh::ReadObj(FILE* path)
+{
+	char count[128];
+	int vertexnum = 0;
+	int facenum = 0;
+	int uvnum = 0;
+
+	//--- 1. 전체 버텍스 개수 및 삼각형 개수 세기
+	while (!feof(path)) {
+		fscanf(path, "%s", count);
+		if (count[0] == 'v' && count[1] == '\0')
+			vertexnum++;
+		else if (count[0] == 'f' && count[1] == '\0')
+			facenum++;	// face가 면
+		else if (count[0] == 'v' && count[1] == 'n' && count[3] == '\0')
+			uvnum++;	// 일단은 샘플파일에 vt가 없어서 vn으로
+		memset(count, '\0', sizeof(count));
+	}
+	rewind(path);
+
+	int vertIndex = 0;
+	int faceIndex = 0;
+	int uvIndex = 0;
+
+	//--- 2. 메모리 할당
+	glm::vec3* vertex = new glm::vec3[vertexnum];
+	glm::vec3* face = new glm::vec3[facenum];
+	glm::vec3* uvdata = new glm::vec3[facenum];
+	glm::vec2* uv = new glm::vec2[uvnum];
+
+	char bind[128];
+
+	//--- 3. 할당된 메모리에 각 버텍스, 페이스, uv 정보 입력
+	while (!feof(path)) {
+		fscanf(path, "%s", bind);
+
+		if (bind[0] == 'v' && bind[1] == '\0') {
+			fscanf(path, "%f %f %f\n",
+				&vertex[vertIndex].x,
+				&vertex[vertIndex].y,
+				&vertex[vertIndex].z);
+			vertIndex++;
+		}
+		else if (bind[0] == 'f' && bind[1] == '\0') {
+			unsigned int temp_face[3], temp_uv[3], temp_normal[3];
+
+			fscanf(path, "%d//%d %d//%d %d//%d\n",
+				&temp_face[0], &temp_uv[0], &temp_normal[0],
+				&temp_face[1], &temp_uv[1], &temp_normal[1],
+				&temp_face[2], &temp_uv[2], &temp_normal[2]);
+
+			face[faceIndex].x = temp_face[0];
+			face[faceIndex].y = temp_face[1];
+			face[faceIndex].z = temp_face[2];
+			//uvdata[faceIndex].x = temp_uv[0];
+			//uvdata[faceIndex].y = temp_uv[1];
+			//uvdata[faceIndex].z = temp_uv[2];
+			faceIndex++;
+		}
+		else if (bind[0] == 'v' && bind[1] == 'n' && bind[2] == '\0') {
+			fscanf(path, "%f %f\n", &uv[uvIndex].x, &uv[uvIndex].y);
+			uvIndex++;
+		}
+	}
+	//--- 필요한 경우 읽어온 값을 전역 변수 등에 저장
 }

@@ -33,9 +33,9 @@ inline void ReadObj(FILE* path) {
 		if (count[0] == 'v' && count[1] == '\0')
 			vertexnum++;
 		else if (count[0] == 'f' && count[1] == '\0')
-			facenum++;
-		else if (count[0] == 'v' && count[1] == 't' && count[3] == '\0')
-			uvnum++;
+			facenum++;	// face가 면
+		else if (count[0] == 'v' && count[1] == 'n' && count[3] == '\0')
+			uvnum++;	// 일단은 샘플파일에 vt가 없어서 vn으로
 		memset(count, '\0', sizeof(count));
 	}
 	rewind(path);
@@ -66,19 +66,20 @@ inline void ReadObj(FILE* path) {
 		else if (bind[0] == 'f' && bind[1] == '\0') {
 			unsigned int temp_face[3], temp_uv[3], temp_normal[3];
 
-			fscanf(path, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
+			fscanf(path, "%d//%d %d//%d %d//%d\n",
 				&temp_face[0], &temp_uv[0], &temp_normal[0],
 				&temp_face[1], &temp_uv[1], &temp_normal[1],
 				&temp_face[2], &temp_uv[2], &temp_normal[2]);
+
 			face[faceIndex].x = temp_face[0];
 			face[faceIndex].y = temp_face[1];
 			face[faceIndex].z = temp_face[2];
-			uvdata[faceIndex].x = temp_uv[0];
-			uvdata[faceIndex].y = temp_uv[1];
-			uvdata[faceIndex].z = temp_uv[2];
+			//uvdata[faceIndex].x = temp_uv[0];
+			//uvdata[faceIndex].y = temp_uv[1];
+			//uvdata[faceIndex].z = temp_uv[2];
 			faceIndex++;
 		}
-		else if (bind[0] == 'v' && bind[1] == 't' && bind[2] == '\0') {
+		else if (bind[0] == 'v' && bind[1] == 'n' && bind[2] == '\0') {
 			fscanf(path, "%f %f\n", &uv[uvIndex].x, &uv[uvIndex].y);
 			uvIndex++;
 		}
