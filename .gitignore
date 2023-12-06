@@ -1,3 +1,5 @@
+*.vcxproj.filters
+*.vcxproj.user
 *.bin
 *.db-shm
 *.db-wal
